@@ -48,3 +48,85 @@ def vol_detail(request, pk):
     elif request.method == 'DELETE':
         vol.delete()
         return HttpResponse(status=204)
+
+@csrf_exempt
+@api_view(['GET','POST'])
+def reservation_list(request): # Faire en sorte d'afficher en fonction de l'utilisateur
+    if request.method == 'GET':
+        reservations = Reservation.objects.all()
+        serializer = ReservationSerializer(reservations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = ReservationSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET','PUT','PATCH','DELETE'])
+@csrf_exempt
+def reservation_detail(request, pk):
+    try:
+        reservation = Reservation.objects.get(pk=pk)
+    except Reservation.DoesNotExist:
+        return HttpResponse(status=404)
+
+    if request.method == 'GET':
+        serializer = ReservationSerializer(reservation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = ReservationSerializer(reservation, data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        reservation.delete()
+        return HttpResponse(status=204)
+
+@csrf_exempt
+@api_view(['GET','POST'])
+def achat_list(request): # Faire en sorte d'afficher en fonction de l'utilisateur
+    if request.method == 'GET':
+        achats = Achat.objects.all()
+        serializer = AchatSerializer(achats, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = AchatSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET','PUT','PATCH','DELETE'])
+@csrf_exempt
+def achat_detail(request, pk):
+    try:
+        achat = Reservation.objects.get(pk=pk)
+    except Reservation.DoesNotExist:
+        return HttpResponse(status=404)
+
+    if request.method == 'GET':
+        serializer = AchatSerializer(achat)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = AchatSerializer(achat, data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+    elif request.method == 'DELETE':
+        achat.delete()
+        return HttpResponse(status=204)
