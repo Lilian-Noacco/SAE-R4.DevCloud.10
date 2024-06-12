@@ -1,15 +1,20 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.http import HttpResponse, JsonResponse
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from .models import Vol, Reservation, Achat
-from .serializer import AchatSerializer, VolSerializer, ReservationSerializer
+from .serializer import AchatSerializer, VolSerializer, ReservationSerializer, UserSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 import json
 @csrf_exempt
-@api_view(['GET','POST'])
+@api_view(['GET','POST']) # Il faudra enlever le post, on ne veut pas que des gens lambas puissent ajouter des vols...
 def vol_list(request):
     if request.method == 'GET':
         vols = Vol.objects.all()
@@ -130,3 +135,31 @@ def achat_detail(request, pk):
     elif request.method == 'DELETE':
         achat.delete()
         return HttpResponse(status=204)
+
+@api_view(['POST'])
+def register(request):
+    if request.method == 'POST':
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            user = User.objects.get(username=request.data['username'])
+            user.save()
+            token = Token.objects.create(user=user)
+            return Response({'token': token.key, 'user': serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def login(request):
+    user = get_object_or_404(User, username=request.data['username'])
+    if not user.check_password(request.data['password']):
+        return Response("missing user", status=status.HTTP_404_NOT_FOUND)
+    token, created = Token.objects.get_or_create(user=user)
+    serializer = UserSerializer(user)
+    return Response({'token': token.key, 'user': serializer.data})
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def test_token(request):
+    print(request.user)
+    return Response("passed!")
