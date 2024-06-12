@@ -30,7 +30,7 @@ class Reservation(models.Model):
     # reservation_nom = models.CharField(max_length=255)
     reservation_nom = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     reservation_vol = models.ForeignKey(Vol, on_delete=models.CASCADE)
-    reservation_date_creation = models.DateTimeField()
+    reservation_date_creation = models.DateTimeField(auto_now_add=True)
     reservation_confirmation = models.ForeignKey(Achat, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
