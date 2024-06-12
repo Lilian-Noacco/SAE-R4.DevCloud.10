@@ -1,6 +1,5 @@
 import asyncio
 import nats
-import json
 
 balancesheet = {
     "FR3810096000306954212365Y38": 50000,
@@ -26,7 +25,7 @@ async def cb(msg):
 
 
 async def banque():
-    nc = await nats.connect("nats://172.31.176.123:4222")
+    nc = await nats.connect("nats://172.31.176.123:4222")       # Modifier l'IP en fct du Serveur
     sub = await nc.subscribe("pay", cb=cb)
 
     while True:
