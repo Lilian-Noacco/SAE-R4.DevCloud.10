@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 import json
 @csrf_exempt
-@api_view(['GET','POST'])
+@api_view(['GET','POST']) # Il faudra enlever le post, on ne veut pas que des gens lambas puissent ajouter des vols...
 def vol_list(request):
     if request.method == 'GET':
         vols = Vol.objects.all()
