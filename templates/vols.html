@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskApp</title>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles.css') }}"></head>
+<body>
+    <header>
+        <h1>Welcome to AirFlow!</h1>
+        <h2>Here is the list of available flights!</h2>
+
+    </header>
+    <main>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date de Départ</th>
+                    <th>Date d'Arrivée</th>
+                    <th>Lieu de Départ</th>
+                    <th>Lieu d'Arrivée</th>
+                    <th>Places Totales</th>
+                    <th>Places Restantes</th>
+                    <th>Avion</th>
+                    <th>Prix(€)</th></thead>
+            <tbody>
+                {% for vol in vols %}
+                <tr>
+                    <td>{{ vol.vol_id }}</td>
+                    <td>{{ vol.vol_date_depart }}</td>
+                    <td>{{ vol.vol_date_arrive }}</td>
+                    <td>{{ vol.vol_lieu_depart }}</td>
+                    <td>{{ vol.vol_lieu_arrive }}</td>
+                    <td>{{ vol.vol_place_totale }}</td>
+                    <td>{{ vol.vol_place_restante }}</td>
+                    <td>{{ vol.vol_avion }}</td>
+                    <td>{{ vol.vol_prix }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
