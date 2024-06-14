@@ -41,7 +41,7 @@ def get_achats():
     headers = {'Authorization': f'Token {session.get("token")}'}
     response = requests.get(f"{API_BASE_URL}achats/", headers=headers)
     achats = response.json()
-    return jsonify(achats)
+    return render_template('achats.html', achats=achats)
 
 
 @app.route('/reservations')
@@ -49,7 +49,7 @@ def get_reservations():
     headers = {'Authorization': f'Token {session.get("token")}'}
     response = requests.get(f"{API_BASE_URL}reservations/", headers=headers)
     reservations = response.json()
-    return jsonify(reservations)
+    return render_template('reservations.html', reservations=reservations)
 
 
 @app.route('/login_register')
