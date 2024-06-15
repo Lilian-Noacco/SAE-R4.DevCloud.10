@@ -42,10 +42,37 @@ def get_achats():
 @app.route('/reservations')
 def get_reservations():
     headers = {'Authorization': f'Token {session.get("token")}'}
-    response = requests.get(f"{API_BASE_URL}reservations/", headers=headers)
+    response = requests.get(f"{API_BASE_URL}reservation/", headers=headers)
     reservations = response.json()
+    for reservation in reservations:
+        reservation['reservation_date_creation'] = format_date(reservation['reservation_date_creation'])
+
     return render_template('reservations.html', reservations=reservations)
 
+
+@app.route('/reservation/<vol_id>', methods=['GET', 'POST'])
+def make_reservation(vol_id):
+    headers = {'Authorization': f'Token {session.get("token")}'}
+    response = requests.get(f"{API_BASE_URL}vol/{vol_id}/", headers=headers)
+    vol = response.json()
+
+    vol['vol_date_depart'] = format_date(vol['vol_date_depart'])
+    vol['vol_date_arrive'] = format_date(vol['vol_date_arrive'])
+    if request.method == 'POST':
+        data = {
+            'reservation_nombre_personne': request.form['reservation_nombre_personne'],
+            'reservation_vol': vol_id
+        }
+
+        headers = {'Authorization': f'Token {session.get("token")}'}
+        response = requests.post(f"{API_BASE_URL}reservation/", json=data, headers=headers)
+
+        if response.status_code == 201:
+            return redirect(url_for('index'))
+        else:
+            return response.json(), response.status_code
+    else:
+        return render_template('reserver.html', vol=vol)
 
 @app.route('/login_register')
 def login_register():

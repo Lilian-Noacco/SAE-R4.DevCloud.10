@@ -55,9 +55,9 @@
                     <td>{{ vol.vol_place_totale }}</td>
                     <td>{{ vol.vol_place_restante }}</td>
                     <td>{{ vol.vol_avion }}</td>
-                    <td>{{ vol.vol_prix }}</td>
+                    <td>Prix : {{ vol.vol_prix }} €</td>
                     {% if session.get('token') %}
-                    <td>Je réserve !</td>
+                    <td><a href="{{ url_for('make_reservation', vol_id=vol.vol_id) }}" class="button">Je réserve</a></td>
                     {% endif %}
                 </tr>
                 {% endfor %}

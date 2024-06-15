@@ -16,8 +16,10 @@ import nats
 from . import nats_utils
 import asyncio
 import json
+
+
 @csrf_exempt
-@api_view(['GET','POST']) # Il faudra enlever le post, on ne veut pas que des gens lambas puissent ajouter des vols...
+@api_view(['GET', 'POST'])  # Il faudra enlever le post, on ne veut pas que des gens lambas puissent ajouter des vols...
 def vol_list(request):
     if request.method == 'GET':
         vols = Vol.objects.all()
@@ -32,7 +34,8 @@ def vol_list(request):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
-@api_view(['GET','PUT','PATCH','DELETE'])
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @csrf_exempt
 def vol_detail(request, pk):
     try:
@@ -57,22 +60,28 @@ def vol_detail(request, pk):
         vol.delete()
         return HttpResponse(status=204)
 
+
 @csrf_exempt
-@api_view(['GET','POST'])
-#@authentication_classes([SessionAuthentication, TokenAuthentication])
-#@permission_classes([IsAuthenticated])
-def reservation_list(request): # Faire en sorte d'afficher en fonction de l'utilisateur
+@api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication,
+                         TokenAuthentication])  # remarque : ces classes sont nécessaires pour récupérer le nom avec request.user
+@permission_classes([IsAuthenticated])
+def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'utilisateur
     if request.method == 'GET':
-        reservations = Reservation.objects.all()
+        reservations = Reservation.objects.filter(reservation_nom=request.user.id)
         serializer = ReservationSerializer(reservations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
+        print(request.user)
+        print(request.user.id)
         data = JSONParser().parse(request)
+        data['reservation_nom'] = request.user.id
         serializer = ReservationSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
         serializer.reservation_nom = request.user
+        print(serializer.reservation_nom)
         serializer.save()
 
         v = Vol.objects.get(pk=data["reservation_vol"])
@@ -85,7 +94,7 @@ def reservation_list(request): # Faire en sorte d'afficher en fonction de l'util
         return Response({"res": "Reservation OK"}, status=201)
 
 
-@api_view(['GET','PUT','PATCH','DELETE'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @csrf_exempt
 def reservation_detail(request, pk):
     try:
@@ -108,7 +117,7 @@ def reservation_detail(request, pk):
 
 
     elif request.method == 'DELETE':
-        reserv=Reservation.objects.get(pk=pk)
+        reserv = Reservation.objects.get(pk=pk)
         v = reserv.reservation_vol
 
         v.vol_place_restante += reserv.reservation_nombre_personne
@@ -116,9 +125,10 @@ def reservation_detail(request, pk):
         reserv.delete()
         return HttpResponse(status=204)
 
+
 @csrf_exempt
-@api_view(['GET','POST'])
-def achat_list(request): # Faire en sorte d'afficher en fonction de l'utilisateur
+@api_view(['GET', 'POST'])
+def achat_list(request):  # Faire en sorte d'afficher en fonction de l'utilisateur
     if request.method == 'GET':
         achats = Achat.objects.all()
         serializer = AchatSerializer(achats, many=True)
@@ -130,17 +140,16 @@ def achat_list(request): # Faire en sorte d'afficher en fonction de l'utilisateu
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-
-        paiement= asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{data['achat_montant']}","nats://172.24.27.223:4222"))
+        paiement = asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{data['achat_montant']}",
+                                                          "nats://172.24.27.223:4222"))
         print(paiement)
-        if paiement=="True":
+        if paiement == "True":
             serializer.save()
             return Response("SUCCES : Somme preleve sur compte", status=201)
         return Response({"res": "ECHEC : Paiement Refuse"}, status=201)
 
 
-
-@api_view(['GET','PUT','PATCH','DELETE'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @csrf_exempt
 def achat_detail(request, pk):
     try:
@@ -165,6 +174,7 @@ def achat_detail(request, pk):
         achat.delete()
         return HttpResponse(status=204)
 
+
 @api_view(['POST'])
 def register(request):
     if request.method == 'POST':
@@ -177,6 +187,7 @@ def register(request):
             return Response({'token': token.key, 'user': serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def login(request):
     user = get_object_or_404(User, username=request.data['username'])
@@ -185,6 +196,7 @@ def login(request):
     token, created = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(user)
     return Response({'token': token.key, 'user': serializer.data})
+
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Faire une réservation</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Faire une réservation</h1>
+    <ul>
+        <li>Date de départ : {{ vol.vol_date_depart }}</li>
+        <li>DAte d'arrivé : {{ vol.vol_date_arrive }}</li>
+        <li>Lieu de départ : {{ vol.vol_lieu_depart }}</li>
+        <li>Lieu d'arrivé : {{ vol.vol_lieu_arrive }}</li>
+        <li>Prix : {{ vol.vol_prix }}</li>
+    </ul>
+    <form method="POST" action="{{ url_for('make_reservation', vol_id=vol.vol_id) }}">
+        <div>
+            <label for="reservation_nombre_personne">Nombre de personnes:</label>
+            <input type="number" id="reservation_nombre_personne" name="reservation_nombre_personne" required>
+        </div>
+        <button type="submit">Réserver</button>
+    </form>
+</div>
+</body>
+</html>
