@@ -56,6 +56,8 @@ def vol_detail(request, pk):
 
 @csrf_exempt
 @api_view(['GET','POST'])
+#@authentication_classes([SessionAuthentication, TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def reservation_list(request): # Faire en sorte d'afficher en fonction de l'utilisateur
     if request.method == 'GET':
         reservations = Reservation.objects.all()
@@ -65,10 +67,20 @@ def reservation_list(request): # Faire en sorte d'afficher en fonction de l'util
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = ReservationSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+        serializer.reservation_nom = request.user
+        serializer.save()
+
+        v = Vol.objects.get(pk=data["reservation_vol"])
+        if v.vol_place_restante > int(data["reservation_nombre_personne"]):
+            v.vol_place_restante -= int(data["reservation_nombre_personne"])
+            v.save()
+        else:
+            return Response({"res": "Nombre de places restantes insuffisante"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"res": "Reservation OK"}, status=201)
+
 
 @api_view(['GET','PUT','PATCH','DELETE'])
 @csrf_exempt
@@ -86,13 +98,19 @@ def reservation_detail(request, pk):
         data = JSONParser().parse(request)
         serializer = ReservationSerializer(reservation, data=data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+        serializer.save()
+        return Response(serializer.data, status=201)
+
 
     elif request.method == 'DELETE':
-        reservation.delete()
+        reserv=Reservation.objects.get(pk=pk)
+        v = reserv.reservation_vol
+
+        v.vol_place_restante += reserv.reservation_nombre_personne
+        v.save()
+        reserv.delete()
         return HttpResponse(status=204)
 
 @csrf_exempt
