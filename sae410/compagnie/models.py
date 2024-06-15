@@ -31,7 +31,7 @@ class Reservation(models.Model):
 class Achat(models.Model):
     achat_id = models.AutoField(primary_key=True)
     achat_iban = models.CharField(max_length=34)
-    achat_date_prelevement = models.DateTimeField()
+    achat_date_prelevement = models.DateTimeField(auto_now=True)
     achat_montant = models.FloatField()
     achat_reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
 

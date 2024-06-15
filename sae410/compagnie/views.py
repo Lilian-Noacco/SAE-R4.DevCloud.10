@@ -12,6 +12,9 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+import nats
+from . import nats_utils
+import asyncio
 import json
 @csrf_exempt
 @api_view(['GET','POST']) # Il faudra enlever le post, on ne veut pas que des gens lambas puissent ajouter des vols...
@@ -124,10 +127,18 @@ def achat_list(request): # Faire en sorte d'afficher en fonction de l'utilisateu
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = AchatSerializer(data=data)
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+
+        paiement= asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{data['achat_montant']}","nats://172.24.27.223:4222"))
+        print(paiement)
+        if paiement=="True":
             serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+            return Response("SUCCES : Somme preleve sur compte", status=201)
+        return Response({"res": "ECHEC : Paiement Refuse"}, status=201)
+
+
 
 @api_view(['GET','PUT','PATCH','DELETE'])
 @csrf_exempt
