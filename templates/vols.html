@@ -9,46 +9,63 @@
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>Liste des vols</h1>
-            <h2>Airflow, le choix des voyageurs exigeants.</h2>
-        </header>
-        <main>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Date de Départ</th>
-                            <th>Date d'Arrivée</th>
-                            <th>Lieu de Départ</th>
-                            <th>Lieu d'Arrivée</th>
-                            <th>Places Totales</th>
-                            <th>Places Restantes</th>
-                            <th>Avion</th>
-                            <th>Prix (€)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for vol in vols %}
-                        <tr>
-                            <td>{{ vol.vol_id }}</td>
-                            <td>{{ vol.vol_date_depart }}</td>
-                            <td>{{ vol.vol_date_arrive }}</td>
-                            <td>{{ vol.vol_lieu_depart }}</td>
-                            <td>{{ vol.vol_lieu_arrive }}</td>
-                            <td>{{ vol.vol_place_totale }}</td>
-                            <td>{{ vol.vol_place_restante }}</td>
-                            <td>{{ vol.vol_avion }}</td>
-                            <td>{{ vol.vol_prix }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="container">
+    <header>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Liste des vols</h1>
+                <h2>Airflow, le choix des voyageurs exigeants.</h2>
             </div>
-        </main>
-    </div>
+            <div class="header-button">
+                {% if session.get('token') %}
+                <a href="{{ url_for('logout') }}" class="button">Déconnexion</a>
+                {% else %}
+                <a href="{{ url_for('login_register') }}" class="button">Connexion / Inscription</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date de Départ</th>
+                    <th>Date d'Arrivée</th>
+                    <th>Lieu de Départ</th>
+                    <th>Lieu d'Arrivée</th>
+                    <th>Places Totales</th>
+                    <th>Places Restantes</th>
+                    <th>Avion</th>
+                    <th>Prix (€)</th>
+                    {% if session.get('token') %}
+                    <th>Réserver</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for vol in vols %}
+                <tr>
+                    <td>{{ vol.vol_id }}</td>
+                    <td>{{ vol.vol_date_depart }}</td>
+                    <td>{{ vol.vol_date_arrive }}</td>
+                    <td>{{ vol.vol_lieu_depart }}</td>
+                    <td>{{ vol.vol_lieu_arrive }}</td>
+                    <td>{{ vol.vol_place_totale }}</td>
+                    <td>{{ vol.vol_place_restante }}</td>
+                    <td>{{ vol.vol_avion }}</td>
+                    <td>{{ vol.vol_prix }}</td>
+                    {% if session.get('token') %}
+                    <td>Je réserve !</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
 </body>
 
 </html>

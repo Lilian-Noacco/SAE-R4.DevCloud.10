@@ -9,11 +9,6 @@ app.secret_key = 'votre-cle-secrete'
 # Configuration de l'URL de base de l'API DRF
 API_BASE_URL = "http://127.0.0.1:8000/api/"
 
-@app.route('/')
-def index():
-    return "Bienvenue à l'application Flask client pour l'API DRF"
-
-
 def format_date(date_str):
     try:
         date_obj = datetime.fromisoformat(date_str)
@@ -24,8 +19,8 @@ def format_date(date_str):
         return date_str
 
 
-@app.route('/vols')
-def get_vols():
+@app.route('/')
+def index():
     headers = {'Authorization': f'Token {session.get("token")}'}
     response = requests.get(f"{API_BASE_URL}vols/", headers=headers)
     vols = response.json()
@@ -93,6 +88,10 @@ def test_login():
     achats = response.json()
     return jsonify(achats)
 
+@app.route('/logout')
+def logout():
+    session.pop('token', None)
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
