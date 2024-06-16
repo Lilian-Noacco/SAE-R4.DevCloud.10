@@ -12,6 +12,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from django.core.mail import send_mail
 import nats
 from . import nats_utils
 import asyncio
@@ -75,6 +76,8 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
     elif request.method == 'POST':
         print(request.user)
         print(request.user.id)
+
+
         data = JSONParser().parse(request)
         data['reservation_nom'] = request.user.id
         serializer = ReservationSerializer(data=data)
@@ -90,6 +93,18 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
             v.save()
         else:
             return Response({"res": "Nombre de places restantes insuffisante"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        client_email = request.user.email
+        client_nb_place = data["reservation_nombre_personne"]
+        corp_mail = f"Chèr(e) {request.user.first_name}, votre réservation de {client_nb_place} place(s) à bien été prise en compte! Merci d'avoir choisi Airflow"
+
+        send_mail(
+            "Confirmation de votre réservation",
+            corp_mail,
+            "airflow.rtproject@gmail.com",
+            [client_email],
+        )
 
         return Response({"res": "Reservation OK"}, status=201)
 

@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Pas très RGPD tout ça
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'airflow.rtproject@gmail.com'
+EMAIL_HOST_PASSWORD = 'vtcw zeea cvrx jyfa'
+EMAIL_USE_TLS = True
 
 # Application definition
 
