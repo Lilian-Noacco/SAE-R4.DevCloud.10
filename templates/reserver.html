@@ -10,9 +10,10 @@
     <h1>Faire une réservation</h1>
     <ul>
         <li>Date de départ : {{ vol.vol_date_depart }}</li>
-        <li>DAte d'arrivé : {{ vol.vol_date_arrive }}</li>
+        <li>Date d'arrivé : {{ vol.vol_date_arrive }}</li>
         <li>Lieu de départ : {{ vol.vol_lieu_depart }}</li>
         <li>Lieu d'arrivé : {{ vol.vol_lieu_arrive }}</li>
+        <li>Places restantes: {{ vol.vol_place_restante }}</li>
         <li>Prix : {{ vol.vol_prix }}</li>
     </ul>
     <form method="POST" action="{{ url_for('make_reservation', vol_id=vol.vol_id) }}">
