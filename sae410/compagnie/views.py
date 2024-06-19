@@ -88,7 +88,7 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
         serializer.save()
 
         v = Vol.objects.get(pk=data["reservation_vol"])
-        if v.vol_place_restante >= int(data["reservation_nombre_personne"]):
+        if v.vol_place_restante > int(data["reservation_nombre_personne"]):
             v.vol_place_restante -= int(data["reservation_nombre_personne"])
             v.save()
         else:
@@ -121,11 +121,19 @@ def reservation_detail(request, pk):
         serializer = ReservationSerializer(reservation)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = ReservationSerializer(reservation, data=data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+        serializer.save()
+        return Response(serializer.data, status=201)
+
+
     elif request.method == 'DELETE':
         reserv = Reservation.objects.get(pk=pk)
         v = reserv.reservation_vol
-        if Achat.all().filter(achat_reservation=pk):
-            return Response({"res": "la reservation a deja ete acheter"}, status=status.HTTP_400_BAD_REQUEST)
 
         v.vol_place_restante += reserv.reservation_nombre_personne
         v.save()
@@ -168,11 +176,16 @@ def achat_detail(request, pk):
         serializer = AchatSerializer(achat)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = AchatSerializer(achat, data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
 
     elif request.method == 'DELETE':
-        data = JSONParser().parse(request)
-        paiement = asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{-data['achat_montant']}",
-                                                          "nats://172.24.27.223:4222"))
         achat.delete()
         return HttpResponse(status=204)
 
