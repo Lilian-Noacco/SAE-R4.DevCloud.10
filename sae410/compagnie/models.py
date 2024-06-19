@@ -25,8 +25,11 @@ class Reservation(models.Model):
     reservation_date_creation = models.DateTimeField(auto_now_add=True)
     #reservation_confirmation = models.ForeignKey(Achat, null=True, blank=True, on_delete=models.SET_NULL)
 
+
     def __str__(self):
         return f"Reservation {self.reservation_id} for {self.reservation_nom}"
+
+
 
 class Achat(models.Model):
     achat_id = models.AutoField(primary_key=True)
