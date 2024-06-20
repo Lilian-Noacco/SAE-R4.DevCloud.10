@@ -121,24 +121,20 @@ def reservation_detail(request, pk):
         serializer = ReservationSerializer(reservation)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = ReservationSerializer(reservation, data=data)
-
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
-        serializer.save()
-        return Response(serializer.data, status=201)
-
 
     elif request.method == 'DELETE':
         reserv = Reservation.objects.get(pk=pk)
         v = reserv.reservation_vol
+        if not Achat.objects.filter(achat_reservation=pk).exists():
+            print("ça existe")
+            v.vol_place_restante += reserv.reservation_nombre_personne
+            v.save()
+            reserv.delete()
+            return HttpResponse(status=204)
+        else:
+            print("ça existe pas")
+            return Response({"res": "La reservation a deja ete paye et ne peux donc pas etre annule"}, status=status.HTTP_400_BAD_REQUEST)
 
-        v.vol_place_restante += reserv.reservation_nombre_personne
-        v.save()
-        reserv.delete()
-        return HttpResponse(status=204)
 
 
 @csrf_exempt
@@ -161,7 +157,7 @@ def achat_list(request):  # Faire en sorte d'afficher en fonction de l'utilisate
         if paiement == "True":
             serializer.save()
             return Response("SUCCES : Somme preleve sur compte", status=201)
-        return Response({"res": "ECHEC : Paiement Refuse"}, status=201)
+        return Response({"res": paiement}, status=201)
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
@@ -176,17 +172,13 @@ def achat_detail(request, pk):
         serializer = AchatSerializer(achat)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = AchatSerializer(achat, data=data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
     elif request.method == 'DELETE':
-        achat.delete()
+        reserv = Reservation.objects.get(pk=pk)
+        v = reserv.reservation_vol
+
+        v.vol_place_restante -= reserv.reservation_nombre_personne
+        v.save()
+        reserv.delete()
         return HttpResponse(status=204)
 
 
