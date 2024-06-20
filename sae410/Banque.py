@@ -21,7 +21,7 @@ async def cb(msg):
         return
     balancesheet[compte] -= prix
     print(f"SUCCES :Somme preleve sur compte {compte}. \nSolde restant : {balancesheet[compte]}")
-    await msg.respond("SUCCES :Somme preleve".encode())
+    await msg.respond("True".encode())
 
 
 async def banque():
