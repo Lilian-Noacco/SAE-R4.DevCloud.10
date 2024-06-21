@@ -141,7 +141,7 @@ def reservation_detail(request, pk):
 @api_view(['GET', 'POST'])
 def achat_list(request):  # Faire en sorte d'afficher en fonction de l'utilisateur
     if request.method == 'GET':
-        achats = Achat.objects.all()
+        achats = Achat.objects.filter(achat_reservation__reservation_nom=request.user.id)
         serializer = AchatSerializer(achats, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

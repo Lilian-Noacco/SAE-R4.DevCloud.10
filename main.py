@@ -35,20 +35,43 @@ def index():
 @app.route('/achats')
 def get_achats():
     headers = {'Authorization': f'Token {session.get("token")}'}
-    response = requests.get(f"{API_BASE_URL}achats/", headers=headers)
+    response = requests.get(f"{API_BASE_URL}achat/", headers=headers)
     achats = response.json()
+    for achat in achats:
+        achat['achat_date_prelevement'] = format_date(achat['achat_date_prelevement'])
+
+    print(achats)
     return render_template('achats.html', achats=achats)
 
+@app.route('/checkout')
+def make_achats():
+    headers = {'Authorization': f'Token {session.get("token")}'}
+    response = requests.get(f"{API_BASE_URL}achat/", headers=headers)
+    achats = response.json()
+    for achat in achats:
+        achat['achat_date_prelevement'] = format_date(achat['achat_date_prelevement'])
+
+    print(achats)
+    return render_template('achats.html', achats=achats)
 
 @app.route('/reservations')
 def get_reservations():
     headers = {'Authorization': f'Token {session.get("token")}'}
     response = requests.get(f"{API_BASE_URL}reservation/", headers=headers)
     reservations = response.json()
+
+    response = requests.get(f"{API_BASE_URL}vols/", headers=headers)
+    vols = response.json()
+    # Formater les dates
+    for vol in vols:
+        vol['vol_date_depart'] = format_date(vol['vol_date_depart'])
+        vol['vol_date_arrive'] = format_date(vol['vol_date_arrive'])
+
     for reservation in reservations:
         reservation['reservation_date_creation'] = format_date(reservation['reservation_date_creation'])
-
-    return render_template('reservations.html', reservations=reservations)
+        reservation['vol_complet'] = vols[reservation['reservation_vol']]
+    print(reservation['vol_complet'])
+    return render_template('reservations.html', reservations=reservations, vols=vols)
 
 
 @app.route('/reservation/<vol_id>', methods=['GET', 'POST'])
