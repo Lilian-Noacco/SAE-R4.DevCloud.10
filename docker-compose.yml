@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: yourdbname
+      MYSQL_USER: youruser
+      MYSQL_PASSWORD: yourpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      sae_network:
+        ipv4_address: 172.20.0.2
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: db
+      DB_NAME: yourdbname
+      DB_USER: youruser
+      DB_PASS: yourpassword
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    networks:
+      sae_network:
+        ipv4_address: 172.20.0.3
+
+  flask:
+    build:
+      context: ./flask
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      sae_network:
+        ipv4_address: 172.20.0.4
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+    networks:
+      sae_network:
+        ipv4_address: 172.20.0.5
+
+volumes:
+  db_data:
+
+networks:
+  sae_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
