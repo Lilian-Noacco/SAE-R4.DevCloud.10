@@ -30,9 +30,30 @@ def index():
         vol['vol_date_arrive'] = format_date(vol['vol_date_arrive'])
     return render_template('vols.html', vols=vols)
 
+@app.route('/paiement/<reservation_id>')
+def paiement(reservation_id):
 
-@app.route('/achats')
-def get_achats():
+    headers = {'Authorization': f'Token {session.get("token")}'}
+    response = requests.get(f"{API_BASE_URL}achats/", headers=headers)
+    achats = response.json()
+    if request.method == 'POST':
+        data = {
+            'achat_iban': request.form['achat_iban'],
+            'achat_reservation': reservation_id,
+        }
+
+        headers = {'Authorization': f'Token {session.get("token")}'}
+        response = requests.post(f"{API_BASE_URL}reservation/", json=data, headers=headers)
+
+        if response.status_code == 201:
+            return redirect(url_for('get_achats'))
+        else:
+            return response.json(), response.status_code
+    else:
+        return render_template('achat.html')
+
+@app.route('/achats/<reservation_id>', methods=['GET', 'POST'])
+def get_achats(reservation_id):
     headers = {'Authorization': f'Token {session.get("token")}'}
     response = requests.get(f"{API_BASE_URL}achats/", headers=headers)
     achats = response.json()
