@@ -139,26 +139,35 @@ def reservation_detail(request, pk):
 
 @csrf_exempt
 @api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication,
+                         TokenAuthentication])  # remarque : ces classes sont nécessaires pour récupérer le nom avec request.user
+@permission_classes([IsAuthenticated])
 def achat_list(request):  # Faire en sorte d'afficher en fonction de l'utilisateur
     if request.method == 'GET':
+        print(request.user.id)
         achats = Achat.objects.filter(achat_reservation__reservation_nom=request.user.id)
+        print(achats)
         serializer = AchatSerializer(achats, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
+        reservation = data['achat_reservation']
+
+        vol = Vol.objects.get(pk=reservation)
+        montant = vol.vol_prix
+        data['achat_montant'] = montant
         serializer = AchatSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        paiement = asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{data['achat_montant']}",
-                                                          "nats://172.24.27.223:4222"))
+        paiement = asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{montant}",
+                                                          "nats://demo.nats.io:4222"))
         print(paiement)
         if paiement == "True":
             serializer.save()
             return Response("SUCCES : Somme preleve sur compte", status=201)
         return Response({"res": paiement}, status=201)
-
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @csrf_exempt

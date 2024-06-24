@@ -31,12 +31,10 @@ def index():
         vol['vol_date_arrive'] = format_date(vol['vol_date_arrive'])
     return render_template('vols.html', vols=vols)
 
-@app.route('/paiement/<reservation_id>')
+@app.route('/paiement/<reservation_id>', methods=['GET', 'POST'])
 def paiement(reservation_id):
 
     headers = {'Authorization': f'Token {session.get("token")}'}
-    response = requests.get(f"{API_BASE_URL}achats/", headers=headers)
-    achats = response.json()
     if request.method == 'POST':
         data = {
             'achat_iban': request.form['achat_iban'],
@@ -44,7 +42,7 @@ def paiement(reservation_id):
         }
 
         headers = {'Authorization': f'Token {session.get("token")}'}
-        response = requests.post(f"{API_BASE_URL}reservation/", json=data, headers=headers)
+        response = requests.post(f"{API_BASE_URL}achat/", json=data, headers=headers)
 
         if response.status_code == 201:
             return redirect(url_for('get_achats'))
@@ -53,11 +51,12 @@ def paiement(reservation_id):
     else:
         return render_template('achat.html')
 
-@app.route('/achats/<reservation_id>', methods=['GET', 'POST'])
-def get_achats(reservation_id):
+@app.route('/achats')
+def get_achats():
     headers = {'Authorization': f'Token {session.get("token")}'}
     response = requests.get(f"{API_BASE_URL}achat/", headers=headers)
     achats = response.json()
+    print(achats)
     for achat in achats:
         achat['achat_date_prelevement'] = format_date(achat['achat_date_prelevement'])
 
@@ -87,11 +86,9 @@ def get_reservations():
     for vol in vols:
         vol['vol_date_depart'] = format_date(vol['vol_date_depart'])
         vol['vol_date_arrive'] = format_date(vol['vol_date_arrive'])
-
-    for reservation in reservations:
-        reservation['reservation_date_creation'] = format_date(reservation['reservation_date_creation'])
-        reservation['vol_complet'] = vols[reservation['reservation_vol']]
-    print(reservation['vol_complet'])
+    # for reservation in reservations:
+    #     reservation['reservation_date_creation'] = format_date(reservation['reservation_date_creation'])
+    #     reservation['vol_complet'] = vols[reservation['reservation_vol']]
     return render_template('reservations.html', reservations=reservations, vols=vols)
 
 
