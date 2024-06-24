@@ -88,7 +88,7 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
         serializer.save()
 
         v = Vol.objects.get(pk=data["reservation_vol"])
-        if v.vol_place_restante > int(data["reservation_nombre_personne"]):
+        if v.vol_place_restante >= int(data["reservation_nombre_personne"]):
             v.vol_place_restante -= int(data["reservation_nombre_personne"])
             v.save()
         else:
