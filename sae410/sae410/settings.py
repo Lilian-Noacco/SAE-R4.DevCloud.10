@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ih7im)hruvj!gobnewvw%omd=wd!1r0^zb242s_kx5^v1(%wci
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Pas très RGPD tout ça
 EMAIL_HOST = 'smtp.gmail.com'
