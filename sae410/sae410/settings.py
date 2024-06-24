@@ -34,9 +34,12 @@ EMAIL_HOST_USER = 'airflow.rtproject@gmail.com'
 EMAIL_HOST_PASSWORD = 'vtcw zeea cvrx jyfa'
 EMAIL_USE_TLS = True
 
+DJANGO_ADMIN_LOGS_ENABLED = True
+
 # Application definition
 
 INSTALLED_APPS = [
+    'django_admin_logs',
     'compagnie',
     'rest_framework',
     'rest_framework.authtoken',

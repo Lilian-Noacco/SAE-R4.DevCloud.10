@@ -13,6 +13,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core.mail import send_mail
+from django.contrib.admin.models import LogEntry
+
 import nats
 from . import nats_utils
 import asyncio
@@ -88,7 +90,7 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
         serializer.save()
 
         v = Vol.objects.get(pk=data["reservation_vol"])
-        if v.vol_place_restante > int(data["reservation_nombre_personne"]):
+        if v.vol_place_restante >= int(data["reservation_nombre_personne"]):
             v.vol_place_restante -= int(data["reservation_nombre_personne"])
             v.save()
         else:
