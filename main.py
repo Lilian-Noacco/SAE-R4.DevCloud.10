@@ -9,6 +9,7 @@ app.secret_key = 'votre-cle-secrete'
 # Configuration de l'URL de base de l'API DRF
 API_BASE_URL = "http://127.0.0.1:8000/api/"
 
+
 def format_date(date_str):
     try:
         date_obj = datetime.fromisoformat(date_str)
@@ -95,6 +96,7 @@ def make_reservation(vol_id):
     else:
         return render_template('reserver.html', vol=vol)
 
+
 @app.route('/login_register')
 def login_register():
     return render_template('login_register.html')
@@ -129,6 +131,7 @@ def register():
         return redirect(url_for('index'))
     return response.json()
 
+
 @app.route('/test')
 def test_login():
     headers = {'Authorization': f'Token {session.get("token")}'}
@@ -136,10 +139,35 @@ def test_login():
     achats = response.json()
     return jsonify(achats)
 
+
 @app.route('/logout')
 def logout():
     session.pop('token', None)
     return redirect(url_for('index'))
+
+
+@app.route('/paiement')
+def get_paiement():
+    headers = {'Authorization': f'Token {session.get("token")}'}
+    response = requests.get(f"{API_BASE_URL}achat/", headers=headers)
+    paiement = response.json()
+    if request.method == 'POST':
+        data = {
+            'card-number': request.form['card-number'],
+            'card-holder': request.form['card-holder'],
+            'expiry-date': request.form['expiry-date'],
+            'cvv': request.form['cvv'],
+
+        }
+
+        headers = {'Authorization': f'Token {session.get("token")}'}
+        response = requests.post(f"{API_BASE_URL}paiement/", json=data, headers=headers)
+
+    else:
+        return render_template('paiement.html', paiement=paiement)
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

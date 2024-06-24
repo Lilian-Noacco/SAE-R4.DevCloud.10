@@ -132,3 +132,30 @@ button:hover {
 .button:hover {
     background-color: #0056b3;
 }
+
+/* Specific Styles for payment form */
+#payment-form div {
+    margin-bottom: 20px;
+}
+
+#payment-form label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+#payment-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+}
+
+#payment-form input:invalid {
+    border-color: red;
+}
+
+#payment-form input:valid {
+    border-color: green;
+}
