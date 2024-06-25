@@ -113,7 +113,28 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
         return Response({"res": "Reservation OK"}, status=201)
 @login_required
 def delete_reservation(request, reservation_id):
-    reservation = get_object_or_404(Reservation, pk=reservation_id)
+    print("id de la rése")
+    print(reservation_id)
+    reservation = Reservation.objects.get(pk=reservation_id)
+    achats = Achat.objects.filter(reservation_id=reservation_id)
+    montants = []
+    for achat in achats:
+        asyncio.run(nats_utils.request_message("pay", f"{achat.achat_iban},-{achat.achat_montant}",
+                                               "nats://demo.nats.io:4222"))
+        montants.append(achat.achat_montant)
+    client_email = request.user.email
+    corp_mail = f"Chèr(e) {request.user.first_name}, votre annulation de(s) {montants} achat(s) à bien été prise en compte! Merci d'avoir choisi Airflow"
+
+    send_mail(
+        "Confirmation de votre annulation",
+        corp_mail,
+        "airflow.rtproject@gmail.com",
+        [client_email],
+    )
+
+
+
+
     if request.method == 'POST':
         reservation.delete()
         return redirect('/admin/compagnie/reservation/')

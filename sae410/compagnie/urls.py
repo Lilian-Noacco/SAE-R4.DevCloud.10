@@ -2,7 +2,7 @@ from django.urls import path
 from .views import vol_list, vol_detail, reservation_detail, reservation_list, achat_list, achat_detail, register, login, test_token, delete_reservation
 
 urlpatterns = [
-path('admin/compagnie/reservation/delete/<int:reservation_id>/', delete_reservation, name='delete_reservation'),
+    path('rembourser/<int:reservation_id>/', delete_reservation),
     path('api/vols/', vol_list),
     path ('api/vol/<int:pk>/', vol_detail),
     path ('api/reservation/', reservation_list),
