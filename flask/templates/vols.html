@@ -19,6 +19,8 @@
             <div class="header-button">
                 {% if session.get('token') %}
                 <a href="{{ url_for('logout') }}" class="button">Déconnexion</a>
+                <a href="{{ url_for('get_reservations') }}" class="button">Vos réservations</a>
+                <a href="{{ url_for('get_achats') }}" class="button">Vos achats</a>
                 {% else %}
                 <a href="{{ url_for('login_register') }}" class="button">Connexion / Inscription</a>
                 {% endif %}
@@ -53,11 +55,23 @@
                     <td>{{ vol.vol_lieu_depart }}</td>
                     <td>{{ vol.vol_lieu_arrive }}</td>
                     <td>{{ vol.vol_place_totale }}</td>
+                    {% if vol.vol_place_restante == 0 %}
+                    <td>Complet</td>
+                    {% else %}
                     <td>{{ vol.vol_place_restante }}</td>
+                    {% endif %}
+
                     <td>{{ vol.vol_avion }}</td>
+
                     <td>Prix : {{ vol.vol_prix }} €</td>
-                    {% if session.get('token') %}
-                    <td><a href="{{ url_for('make_reservation', vol_id=vol.vol_id) }}" class="button">Je réserve</a></td>
+
+                    {% if vol.vol_place_restante != 0 %}
+                        {% if session.get('token') %}
+                        <td><a href="{{ url_for('make_reservation', vol_id=vol.vol_id) }}" class="button">Je réserve</a>
+                        </td>
+                        {% endif %}
+                    {% else %}
+                    <td>Complet</td>
                     {% endif %}
                 </tr>
                 {% endfor %}
