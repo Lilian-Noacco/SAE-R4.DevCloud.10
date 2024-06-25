@@ -12,27 +12,31 @@
     <div class="container">
         <header>
             <h1>Liste des Achats</h1>
+                        <div class="header-button">
+                {% if session.get('token') %}
+                <a href="{{ url_for('logout') }}" class="button">Déconnexion</a>
+                <a href="{{ url_for('get_reservations') }}" class="button">Vos réservations</a>
+                {% else %}
+                <a href="{{ url_for('login_register') }}" class="button">Connexion / Inscription</a>
+                {% endif %}
+            </div>
         </header>
         <main>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nom de l'utilisateur</th>
-                            <th>ID de la réservation</th>
-                            <th>Date d'achat</th>
+                            <th>IBAN</th>
+                            <th>Date de prélèvement</th>
                             <th>Montant payé (€)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for achat in achats %}
                         <tr>
-                            <td>{{ achat.achat_id }}</td>
-                            <td>{{ achat.user.username }}</td>
-                            <td>{{ achat.reservation_id }}</td>
-                            <td>{{ achat.date_achat }}</td>
-                            <td>{{ achat.montant_paye }}</td>
+                            <td>{{ achat.achat_iban }}</td>
+                            <td>{{ achat.achat_date_prelevement }}</td>
+                            <td>{{ achat.achat_montant }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

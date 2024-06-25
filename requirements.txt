@@ -3,6 +3,8 @@
 # Django dependencies
 django
 djangorestframework
+django_admin_logs
+
 
 # Database dependencies
 mysqlclient
