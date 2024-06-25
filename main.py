@@ -63,17 +63,6 @@ def get_achats():
     print(achats)
     return render_template('achats.html', achats=achats)
 
-@app.route('/checkout')
-def make_achats():
-    headers = {'Authorization': f'Token {session.get("token")}'}
-    response = requests.get(f"{API_BASE_URL}achat/", headers=headers)
-    achats = response.json()
-    for achat in achats:
-        achat['achat_date_prelevement'] = format_date(achat['achat_date_prelevement'])
-
-    print(achats)
-    return render_template('achats.html', achats=achats)
-
 @app.route('/reservations')
 def get_reservations():
     headers = {'Authorization': f'Token {session.get("token")}'}
@@ -186,8 +175,12 @@ def get_paiement():
     else:
         return render_template('paiement.html', paiement=paiement)
 
+@app.route('/remboursement/<int:reserv_id>')
+def remboursement(reserv_id):
+    headers = {'Authorization': f'Token {session.get("token")}'}
+    response = requests.delete(f"{API_BASE_URL}reservation/{reserv_id}/", headers=headers)
 
-
+    return redirect(url_for('get_reservations'))
 
 if __name__ == '__main__':
     app.run(debug=True)

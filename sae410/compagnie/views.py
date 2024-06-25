@@ -16,6 +16,8 @@ from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
+from django.contrib.contenttypes.models import ContentType
 
 import nats
 from . import nats_utils
@@ -118,30 +120,34 @@ def delete_reservation(request, reservation_id):
     reservation = Reservation.objects.get(pk=reservation_id)
     achats = Achat.objects.filter(reservation_id=reservation_id)
     montants = []
-    for achat in achats:
-        asyncio.run(nats_utils.request_message("pay", f"{achat.achat_iban},-{achat.achat_montant}",
-                                               "nats://demo.nats.io:4222"))
-        montants.append(achat.achat_montant)
-    client_email = request.user.email
-    corp_mail = f"Chèr(e) {request.user.first_name}, votre annulation de(s) {montants} achat(s) à bien été prise en compte! Merci d'avoir choisi Airflow"
-
-    send_mail(
-        "Confirmation de votre annulation",
-        corp_mail,
-        "airflow.rtproject@gmail.com",
-        [client_email],
-    )
-
 
 
 
     if request.method == 'POST':
+        for achat in achats:
+            asyncio.run(nats_utils.request_message("pay", f"{achat.achat_iban},-{achat.achat_montant}",
+                                                   "nats://172.20.0.5:4222"))
+            montants.append(achat.achat_montant)
+            achat.delete()
+        client_email = request.user.email
+        corp_mail = f"Chèr(e) {request.user.first_name}, votre annulation de(s) {montants} achat(s) à bien été prise en compte! Merci d'avoir choisi Airflow"
+
+        send_mail(
+            "Confirmation de votre annulation",
+            corp_mail,
+            "airflow.rtproject@gmail.com",
+            [client_email],
+        )
+
         reservation.delete()
         return redirect('/admin/compagnie/reservation/')
     return render(request, 'admin/delete_reservation.html', {'reservation': reservation})
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @csrf_exempt
+@authentication_classes([SessionAuthentication,
+                         TokenAuthentication])  # remarque : ces classes sont nécessaires pour récupérer le nom avec request.user
+@permission_classes([IsAuthenticated])
 def reservation_detail(request, pk):
     try:
         reservation = Reservation.objects.get(pk=pk)
@@ -160,7 +166,15 @@ def reservation_detail(request, pk):
             print("ça existe")
             v.vol_place_restante += reserv.reservation_nombre_personne
             v.save()
-            reserv.delete()
+            print("sdfdsfsdfdsfsdfdsfsdf")
+            # reserv.delete()
+            LogEntry.objects.log_action(
+                user_id=request.user.id,
+                content_type_id=ContentType.objects.get_for_model(reservation).pk,
+                object_id=pk,
+                object_repr=str(reservation),
+                action_flag=DELETION
+            )
             return HttpResponse(status=204)
         else:
             print("ça existe pas")
