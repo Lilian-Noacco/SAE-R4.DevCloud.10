@@ -13,7 +13,9 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry
+from django.shortcuts import get_object_or_404, redirect, render
 
 import nats
 from . import nats_utils
@@ -109,7 +111,13 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
         )
 
         return Response({"res": "Reservation OK"}, status=201)
-
+@login_required
+def delete_reservation(request, reservation_id):
+    reservation = get_object_or_404(Reservation, pk=reservation_id)
+    if request.method == 'POST':
+        reservation.delete()
+        return redirect('/admin/compagnie/reservation/')
+    return render(request, 'admin/delete_reservation.html', {'reservation': reservation})
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @csrf_exempt
