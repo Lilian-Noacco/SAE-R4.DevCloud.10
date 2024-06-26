@@ -114,21 +114,25 @@ def reservation_list(request):  # Faire en sorte d'afficher en fonction de l'uti
 
         return Response({"res": "Reservation OK"}, status=201)
 @login_required
+@authentication_classes([SessionAuthentication,
+                         TokenAuthentication])  # remarque : ces classes sont nécessaires pour récupérer le nom avec request.user
+@permission_classes([IsAuthenticated])
 def delete_reservation(request, reservation_id):
     print("id de la rése")
     print(reservation_id)
     reservation = Reservation.objects.get(pk=reservation_id)
-    achats = Achat.objects.filter(reservation_id=reservation_id)
+    achats = Achat.objects.filter(achat_reservation=reservation_id)
     montants = []
 
 
 
     if request.method == 'POST':
         for achat in achats:
-            asyncio.run(nats_utils.request_message("pay", f"{achat.achat_iban},-{achat.achat_montant}",
-                                                   "nats://172.20.0.5:4222"))
+            asyncio.run(nats_utils.request_message("pay", f"{achat.achat_iban},-{achat.achat_montant*reservation.reservation_nombre_personne}",
+                                                   "nats://demo.nats.io:4222"))
             montants.append(achat.achat_montant)
             achat.delete()
+
         client_email = request.user.email
         corp_mail = f"Chèr(e) {request.user.first_name}, votre annulation de(s) {montants} achat(s) à bien été prise en compte! Merci d'avoir choisi Airflow"
 
@@ -162,17 +166,16 @@ def reservation_detail(request, pk):
     elif request.method == 'DELETE':
         reserv = Reservation.objects.get(pk=pk)
         v = reserv.reservation_vol
-        if not Achat.objects.filter(achat_reservation=pk).exists():
+        if Achat.objects.filter(achat_reservation=pk).exists():
             print("ça existe")
             v.vol_place_restante += reserv.reservation_nombre_personne
             v.save()
-            print("sdfdsfsdfdsfsdfdsfsdf")
             # reserv.delete()
             LogEntry.objects.log_action(
                 user_id=request.user.id,
                 content_type_id=ContentType.objects.get_for_model(reservation).pk,
                 object_id=pk,
-                object_repr=str(reservation),
+                object_repr="Demande d'annulation",
                 action_flag=DELETION
             )
             return HttpResponse(status=204)
@@ -198,15 +201,15 @@ def achat_list(request):  # Faire en sorte d'afficher en fonction de l'utilisate
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         reservation = data['achat_reservation']
-
-        vol = Vol.objects.get(pk=reservation)
+        reservation = Reservation.objects.get(pk=data['achat_reservation'])
+        vol = Vol.objects.get(pk=reservation.reservation_vol.vol_id)
         montant = vol.vol_prix
         data['achat_montant'] = montant
         serializer = AchatSerializer(data=data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        paiement = asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{montant}",
+        paiement = asyncio.run(nats_utils.request_message("pay", f"{data['achat_iban']},{montant*reservation.reservation_nombre_personne}",
                                                           "nats://demo.nats.io:4222"))
         print(paiement)
         if paiement == "True":

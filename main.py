@@ -154,27 +154,6 @@ def logout():
     session.pop('token', None)
     return redirect(url_for('index'))
 
-
-@app.route('/paiement')
-def get_paiement():
-    headers = {'Authorization': f'Token {session.get("token")}'}
-    response = requests.get(f"{API_BASE_URL}achat/", headers=headers)
-    paiement = response.json()
-    if request.method == 'POST':
-        data = {
-            'card-number': request.form['card-number'],
-            'card-holder': request.form['card-holder'],
-            'expiry-date': request.form['expiry-date'],
-            'cvv': request.form['cvv'],
-
-        }
-
-        headers = {'Authorization': f'Token {session.get("token")}'}
-        response = requests.post(f"{API_BASE_URL}paiement/", json=data, headers=headers)
-
-    else:
-        return render_template('paiement.html', paiement=paiement)
-
 @app.route('/remboursement/<int:reserv_id>')
 def remboursement(reserv_id):
     headers = {'Authorization': f'Token {session.get("token")}'}
