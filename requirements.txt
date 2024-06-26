@@ -1,0 +1,18 @@
+# requirements.txt
+
+# Django dependencies
+django
+djangorestframework
+django_admin_logs
+
+
+# Database dependencies
+mysqlclient
+
+# Flask dependencies
+Flask
+
+# Other dependencies if used in either Django or Flask
+requests
+nats-py
+babel

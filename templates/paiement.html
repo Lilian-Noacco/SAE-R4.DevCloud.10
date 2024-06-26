@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Airflow - Paiement</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Paiement de la Réservation</h1>
+        </header>
+        <main>
+            <form id="payment-form" action="/process_payment" method="post">
+                <div>
+                    <label for="card-number">Numéro de la Carte</label>
+                    <input type="text" id="card-number" name="card_number" placeholder="1234 1234 1234 1234" maxlength="19" required>
+                </div>
+                <div>
+                    <label for="card-holder">Nom du Titulaire</label>
+                    <input type="text" id="card-holder" name="card_holder" placeholder="Nom sur la carte" required>
+                </div>
+                <div>
+                    <label for="expiry-date">Date d'Expiration</label>
+                    <input type="text" id="card-holder" name="expiry-date" placeholder="DD/MM/YYYY" required>
+                </div>
+                <div>
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" name="cvv" placeholder="123" pattern="[0-9]{3}" maxlength="3" required>
+                </div>
+                <button type="submit">Payer</button>
+            </form>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var cardNumberInput = document.getElementById('card-number');
+            var expiryDateInput = document.getElementById('expiry-date');
+            var cvvInput = document.getElementById('cvv');
+
+            cardNumberInput.addEventListener('input', function(e) {
+                var input = e.target.value.replace(/\D/g, '').substring(0, 16);  // Supprime les non-chiffres
+                var sections = [];
+
+                for (var i = 0; i < input.length; i += 4) {
+                    sections.push(input.substring(i, i + 4));
+                }
+
+                e.target.value = sections.join(' ');
+            });
+
+            expiryDateInput.addEventListener('input', function(e) {
+                var input = e.target.value.replace(/\D/g, '').substring(0, 8); // Supprime les non-chiffres
+                var sections = [];
+
+                if (input.length >= 2) {
+                    sections.push(input.substring(0, 2));
+                }
+                if (input.length >= 4) {
+                    sections.push(input.substring(2, 4));
+                }
+                if (input.length >= 8) {
+                    sections.push(input.substring(4, 8));
+                } else if (input.length > 4) {
+                    sections.push(input.substring(4));
+                }
+
+                e.target.value = sections.join('/');
+            });
+
+            cvvInput.addEventListener('input', function(e) {
+                var input = e.target.value.replace(/\D/g, '').substring(0, 3); // Supprime les non-chiffres et limite à 3 chiffres
+                e.target.value = input;
+            });
+        });
+    </script>
+</body>
+</html>

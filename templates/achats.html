@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Airflow - Achats</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Liste des Achats</h1>
+                        <div class="header-button">
+                {% if session.get('token') %}
+                <a href="{{ url_for('logout') }}" class="button">Déconnexion</a>
+                <a href="{{ url_for('get_reservations') }}" class="button">Vos réservations</a>
+                {% else %}
+                <a href="{{ url_for('login_register') }}" class="button">Connexion / Inscription</a>
+                {% endif %}
+            </div>
+        </header>
+        <main>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IBAN</th>
+                            <th>Date de prélèvement</th>
+                            <th>Montant payé (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for achat in achats %}
+                        <tr>
+                            <td>{{ achat.achat_iban }}</td>
+                            <td>{{ achat.achat_date_prelevement }}</td>
+                            <td>{{ achat.achat_montant }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

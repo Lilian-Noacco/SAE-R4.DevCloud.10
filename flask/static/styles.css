@@ -1,0 +1,161 @@
+/* styles.css */
+
+/* Common Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #fafafa;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center; /* Centrer horizontalement */
+    align-items: center; /* Centrer verticalement */
+    min-height: 100vh; /* S'assurer que le body prend toute la hauteur de la fenêtre */
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px; /* Limiter la largeur maximale */
+    background-color: #ffffff;
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h1, h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+main {
+    display: flex;
+    justify-content: center; /* Centrer le tableau horizontalement */
+}
+
+table {
+    width: 100%; /* Utiliser toute la largeur du conteneur */
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    border-radius: 5px; /* Ajout de coins arrondis */
+    overflow: hidden; /* Pour que la bordure ne déborde pas */
+}
+
+th, td {
+    padding: 16px;
+    background-color: #fff;
+    text-align: left;
+    border-bottom: 2px solid #f2f2f2;
+}
+
+th {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+    }
+
+    th, td {
+        font-size: 14px;
+        padding: 12px;
+    }
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Specific Styles for login/register form */
+.container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container input {
+    margin-bottom: 15px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 400px; /* Ajout d'une largeur maximale */
+}
+
+.container hr {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+
+.container h2 {
+    color: #007bff;
+}
+
+.header-button {
+    flex-shrink: 0;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    color: white;
+    background-color: #007BFF;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* Specific Styles for payment form */
+#payment-form div {
+    margin-bottom: 20px;
+}
+
+#payment-form label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+#payment-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+}
+
+#payment-form input:invalid {
+    border-color: red;
+}
+
+#payment-form input:valid {
+    border-color: green;
+}
